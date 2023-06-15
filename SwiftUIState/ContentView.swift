@@ -24,11 +24,11 @@ func toggleTorch(on: Bool){
 }
 
 struct ContentView: View {
-    @State private var isPlaying = false
+    @State private var isPlaying = false // Свойство в качестве триггера
     var body: some View {
         VStack {
             Button {
-                isPlaying.toggle()
+                isPlaying.toggle() // Изменение свойства спровоцирует вызов функции Фонарика
                 // Switch between the play and stop button
                 toggleTorch(on: isPlaying)
             } label: {
