@@ -23,21 +23,59 @@ func toggleTorch(on: Bool){
     }
 }
 
+func flashlightToggle(on: Bool) {
+    guard let device = AVCaptureDevice.default(for: .video) else {return}
+    do {
+        try device.lockForConfiguration()
+
+        if on {
+            for _ in 1...100 {
+                device.torchMode = .on
+                Thread.sleep(forTimeInterval: 0.2)
+                device.torchMode = .off
+                Thread.sleep(forTimeInterval: 0.2)
+            }
+        } else {
+            device.torchMode = .off
+        }
+
+        device.unlockForConfiguration()
+    } catch {
+        print("Не удалось управлять фонариком: \(error.localizedDescription)")
+    }
+}
+
+
 struct ContentView: View {
+    @State private var isFlashing = false
     @State private var isPlaying = false // Свойство в качестве триггера
     var body: some View {
         VStack {
             Button {
-                isPlaying.toggle() // Изменение свойства спровоцирует вызов функции Фонарика
+                isPlaying = true // Изменение свойства спровоцирует вызов функции Фонарика
                 // Switch between the play and stop button
                 toggleTorch(on: isPlaying)
             } label: {
                 Image(systemName: isPlaying ? "sun.max.fill": "sun.max")
-                    .font(.system(size: 150))
+                    .font(.system(size: 100))
                     .foregroundColor(isPlaying ? .white: .gray)
                     .shadow(color: isPlaying ? Color.white : Color.gray, radius: 10, x: 0, y: 0)
-
             }
+            Button {
+                isPlaying = false // Изменение свойства спровоцирует вызов/отключение функции Фонарика
+                // Switch between the play and stop button
+                isFlashing.toggle()
+                flashlightToggle(on: isFlashing)
+                
+            } label: {
+                Image(systemName: isFlashing ? "sun.max.circle.fill" : "sun.max.circle")
+                    .font(.system(size: 100))
+                    .foregroundColor(isFlashing ? .white: .gray)
+                    .shadow(color: isFlashing ? Color.white : Color.gray, radius: 10, x: 0, y: 0)
+            }
+            Text("Мигание фонарика")
+//            Toggle("Мигание фонарика", isOn: $isFlashing)
+//                .padding()
         }
         .padding()
         .preferredColorScheme(.dark)
